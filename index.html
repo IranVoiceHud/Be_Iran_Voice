@@ -37,6 +37,12 @@
       line-height: 1.3;
     }
 
+    h3 {
+      font-size: 1.1rem;
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
     p {
       font-size: 1.05rem;
       margin: 12px 0;
@@ -86,7 +92,8 @@
       font-size: 1rem;
     }
 
-    input[type="text"] {
+    input[type="text"],
+    input[type="email"] {
       width: 100%;
       padding: 12px;
       font-size: 1.05rem;
@@ -95,7 +102,8 @@
       transition: border-color 0.2s;
     }
 
-    input[type="text"]:focus {
+    input[type="text"]:focus,
+    input[type="email"]:focus {
       outline: none;
       border-color: #b00020;
     }
@@ -137,6 +145,12 @@
       background: #222;
     }
 
+    .button.small {
+      font-size: 1rem;
+      padding: 12px 16px;
+      margin-top: 8px;
+    }
+
     .small {
       font-size: 0.95rem;
       color: #666;
@@ -175,52 +189,32 @@
       font-weight: 600;
     }
 
-    /* Loading spinner */
-    .spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #b00020;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-      margin-left: 8px;
-      vertical-align: middle;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
     .hidden {
       display: none;
     }
 
-    .mp-info {
-      background: #e8f5e9;
-      border: 2px solid #4caf50;
+    .info-box {
+      background: #e3f2fd;
+      border: 2px solid #2196f3;
       padding: 12px;
       border-radius: 8px;
-      margin-top: 12px;
+      margin: 12px 0;
     }
 
-    .mp-info p {
+    .info-box p {
       margin: 6px 0;
     }
 
-    .error {
-      background: #ffebee;
-      border: 2px solid #f44336;
+    .step {
+      background: #f5f5f5;
       padding: 12px;
       border-radius: 8px;
-      margin-top: 12px;
-      color: #c62828;
+      margin: 12px 0;
+      border-left: 4px solid #b00020;
     }
 
-    .error a {
+    .step h3 {
       color: #b00020;
-      font-weight: 600;
     }
 
     /* Mobile improvements */
@@ -297,8 +291,10 @@
       A single email from you makes a real difference.
     </p>
 
-    <!-- Form to collect user details -->
-    <form id="mp-form">
+    <!-- Step 1: Enter details -->
+    <div class="step" id="step1">
+      <h3>Step 1: Enter Your Details</h3>
+      
       <div class="form-group">
         <label for="name">Your Full Name *</label>
         <input type="text" id="name" name="name" required placeholder="e.g. John Smith">
@@ -309,16 +305,67 @@
         <input type="text" id="postcode" name="postcode" required placeholder="e.g. HD4 6NR" style="text-transform: uppercase;">
       </div>
 
-      <button type="submit" class="button" id="find-mp-btn">
-        📧 Find My MP & Send Email
+      <button class="button" onclick="goToStep2()">
+        ➡️ Next: Find My MP
       </button>
-    </form>
+    </div>
 
-    <!-- MP info display -->
-    <div id="mp-result" class="hidden"></div>
+    <!-- Step 2: Find MP -->
+    <div class="step hidden" id="step2">
+      <h3>Step 2: Find Your MP</h3>
+      
+      <p>Click the button below to find your MP on the Parliament website:</p>
+      
+      <a class="button" id="find-mp-link" href="https://members.parliament.uk/FindYourMP" target="_blank">
+        🔍 Find My MP (Opens New Tab)
+      </a>
+
+      <div class="info-box">
+        <p><strong>💡 Instructions:</strong></p>
+        <p>1. Enter your postcode: <strong id="show-postcode"></strong></p>
+        <p>2. Note your MP's name and email</p>
+        <p>3. Come back to this tab</p>
+      </div>
+
+      <button class="button secondary small" onclick="goToStep3()">
+        ✅ I Found My MP - Continue
+      </button>
+
+      <button class="button secondary small" onclick="goToStep1()">
+        ⬅️ Back
+      </button>
+    </div>
+
+    <!-- Step 3: Enter MP details and generate email -->
+    <div class="step hidden" id="step3">
+      <h3>Step 3: Enter MP Details</h3>
+      
+      <div class="form-group">
+        <label for="mp-name">Your MP's Full Name *</label>
+        <input type="text" id="mp-name" placeholder="e.g. Harpreet Uppal">
+      </div>
+
+      <div class="form-group">
+        <label for="mp-email">Your MP's Email *</label>
+        <input type="email" id="mp-email" placeholder="e.g. harpreet.uppal.mp@parliament.uk">
+      </div>
+
+      <div class="info-box">
+        <p><strong>📧 MP Email Format:</strong></p>
+        <p>Usually: <code>firstname.lastname.mp@parliament.uk</code></p>
+      </div>
+
+      <button class="button" onclick="generateEmail()">
+        📧 Generate Personalized Email
+      </button>
+
+      <button class="button secondary small" onclick="goToStep2()">
+        ⬅️ Back
+      </button>
+    </div>
 
     <p class="small">
-      We'll find your MP based on your postcode and open a personalized email ready to send.
+      Your personalized email will include your details and MP's information.
     </p>
   </div>
 
@@ -396,127 +443,78 @@
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 <script>
-  document.getElementById('mp-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const name = document.getElementById('name').value.trim();
-    const postcode = document.getElementById('postcode').value.trim().toUpperCase().replace(/\s+/g, '');
-    const resultDiv = document.getElementById('mp-result');
-    const button = document.getElementById('find-mp-btn');
-    
-    // Validate inputs
-    if (!name || !postcode) {
-      resultDiv.className = 'error';
-      resultDiv.innerHTML = '<p>⚠️ Please fill in both your name and postcode.</p>';
-      resultDiv.classList.remove('hidden');
-      return;
-    }
-
-    // Show loading state
-    button.disabled = true;
-    button.innerHTML = '🔍 Finding your MP<span class="spinner"></span>';
-    resultDiv.classList.add('hidden');
-
-    try {
-      // Method 1: Try postcodes.io to get constituency
-      let constituencyName = null;
-      let mpName = null;
-      let mpEmail = null;
-
-      try {
-        const postcodeResponse = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(postcode)}`);
-        const postcodeData = await postcodeResponse.json();
-        
-        if (postcodeData.status === 200 && postcodeData.result) {
-          constituencyName = postcodeData.result.parliamentary_constituency;
-        }
-      } catch (err) {
-        console.log('Postcodes.io failed, trying alternative...');
-      }
-
-      // Method 2: If we have constituency, look up MP
-      if (constituencyName) {
-        // Use TheyWorkForYou API
-        try {
-          const mpResponse = await fetch(`https://www.theyworkforyou.com/api/getMP?postcode=${encodeURIComponent(postcode)}&output=js`);
-          const mpText = await mpResponse.text();
-          const mpData = JSON.parse(mpText);
-          
-          if (mpData && mpData.name) {
-            mpName = mpData.name;
-            // Format email: firstname.lastname@parliament.uk
-            const nameParts = mpData.name.toLowerCase().split(' ');
-            mpEmail = `${nameParts.join('.')}@parliament.uk`;
-          }
-        } catch (err) {
-          console.log('TheyWorkForYou API failed');
-        }
-      }
-
-      // If we still don't have MP info, throw error
-      if (!mpName || !mpEmail || !constituencyName) {
-        throw new Error('Could not find MP information');
-      }
-
-      // Format postcode nicely for display
-      const formattedPostcode = postcode.slice(0, -3) + ' ' + postcode.slice(-3);
-
-      // Show MP info
-      resultDiv.className = 'mp-info';
-      resultDiv.innerHTML = `
-        <p><strong>✅ Your MP Found:</strong></p>
-        <p><strong>${mpName}</strong></p>
-        <p>Constituency: ${constituencyName}</p>
-        <p>Click the button below to send your email!</p>
-      `;
-      resultDiv.classList.remove('hidden');
-
-      // Create personalized email
-      const subject = encodeURIComponent('Urgent: Violence against civilians in Iran');
-      const body = encodeURIComponent(
-        `Dear ${mpName},\n\n` +
-        `I am writing as your constituent from ${formattedPostcode} to express serious concern about the ongoing violence against civilians in Iran.\n\n` +
-        `Over 30,000 people have been killed by the Iranian regime, many of them young people. Security forces continue to use live ammunition and chemical agents against unarmed civilians.\n\n` +
-        `I urge you to:\n` +
-        `1. Raise this issue in Parliament\n` +
-        `2. Support calls for accountability and humanitarian access\n` +
-        `3. Press for international action on human rights violations in Iran\n\n` +
-        `Thank you for your attention to this urgent matter.\n\n` +
-        `Yours sincerely,\n` +
-        `${name}\n` +
-        `${formattedPostcode}`
-      );
-
-      const mailtoLink = `mailto:${mpEmail}?subject=${subject}&body=${body}`;
-
-      // Update button to send email
-      button.disabled = false;
-      button.innerHTML = `📧 Send Email to ${mpName.split(' ')[0]}`;
-      button.onclick = function(e) {
-        e.preventDefault();
-        window.location.href = mailtoLink;
-      };
-
-    } catch (error) {
-      console.error('Error:', error);
-      resultDiv.className = 'error';
-      resultDiv.innerHTML = `
-        <p><strong>⚠️ Could not find your MP automatically.</strong></p>
-        <p>Please try one of these options:</p>
-        <p>1. Visit <a href="https://www.theyworkforyou.com/postcode/" target="_blank">TheyWorkForYou</a> to find your MP</p>
-        <p>2. Visit <a href="https://members.parliament.uk/FindYourMP" target="_blank">Parliament website</a></p>
-        <p>3. Double-check your postcode is correct (e.g. HD4 6NR)</p>
-      `;
-      resultDiv.classList.remove('hidden');
-      button.disabled = false;
-      button.innerHTML = '📧 Find My MP & Send Email';
-    }
-  });
-
   // Format postcode as user types
   document.getElementById('postcode').addEventListener('input', function(e) {
     e.target.value = e.target.value.toUpperCase();
   });
+
+  function goToStep1() {
+    document.getElementById('step1').classList.remove('hidden');
+    document.getElementById('step2').classList.add('hidden');
+    document.getElementById('step3').classList.add('hidden');
+  }
+
+  function goToStep2() {
+    const name = document.getElementById('name').value.trim();
+    const postcode = document.getElementById('postcode').value.trim().toUpperCase();
+
+    if (!name || !postcode) {
+      alert('Please fill in your name and postcode');
+      return;
+    }
+
+    // Show postcode in step 2
+    document.getElementById('show-postcode').textContent = postcode;
+
+    // Hide step 1, show step 2
+    document.getElementById('step1').classList.add('hidden');
+    document.getElementById('step2').classList.remove('hidden');
+    document.getElementById('step3').classList.add('hidden');
+  }
+
+  function goToStep3() {
+    // Hide step 2, show step 3
+    document.getElementById('step1').classList.add('hidden');
+    document.getElementById('step2').classList.add('hidden');
+    document.getElementById('step3').classList.remove('hidden');
+  }
+
+  function generateEmail() {
+    const name = document.getElementById('name').value.trim();
+    const postcode = document.getElementById('postcode').value.trim().toUpperCase();
+    const mpName = document.getElementById('mp-name').value.trim();
+    const mpEmail = document.getElementById('mp-email').value.trim();
+
+    if (!name || !postcode || !mpName || !mpEmail) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    // Format postcode nicely
+    const formattedPostcode = postcode.replace(/\s+/g, '');
+    const displayPostcode = formattedPostcode.slice(0, -3) + ' ' + formattedPostcode.slice(-3);
+
+    // Create personalized email
+    const subject = encodeURIComponent('Urgent: Violence against civilians in Iran');
+    const body = encodeURIComponent(
+      `Dear ${mpName},\n\n` +
+      `I am writing as your constituent from ${displayPostcode} to express serious concern about the ongoing violence against civilians in Iran.\n\n` +
+      `Over 30,000 people have been killed by the Iranian regime, many of them young people. Security forces continue to use live ammunition and chemical agents against unarmed civilians.\n\n` +
+      `I urge you to:\n` +
+      `1. Raise this issue in Parliament\n` +
+      `2. Support calls for accountability and humanitarian access\n` +
+      `3. Press for international action on human rights violations in Iran\n\n` +
+      `Thank you for your attention to this urgent matter.\n\n` +
+      `Yours sincerely,\n` +
+      `${name}\n` +
+      `${displayPostcode}`
+    );
+
+    const mailtoLink = `mailto:${mpEmail}?subject=${subject}&body=${body}`;
+    
+    // Open email client
+    window.location.href = mailtoLink;
+  }
 </script>
 
 </body>
