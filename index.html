@@ -382,6 +382,7 @@
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 <script>
+  // Auto-uppercase postcode for the user
   document.getElementById('postcode').addEventListener('input', function(e) {
     e.target.value = e.target.value.toUpperCase();
   });
@@ -401,114 +402,71 @@
       return;
     }
 
-    // Show loading state
+    // UI Feedback: Loading
     button.disabled = true;
-    button.innerHTML = '🔍 Finding your MP<span class="spinner"></span>';
+    button.innerHTML = '🔍 Finding your MP...<span class="spinner"></span>';
     resultDiv.classList.add('hidden');
 
     try {
-      // Use Claude AI to find MP information
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          messages: [{
-            role: "user",
-            content: `Find the UK Member of Parliament (MP) for postcode: ${postcode}
+      // 1. Get the constituency from the postcode
+      const pcResponse = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(postcode)}`);
+      if (!pcResponse.ok) throw new Error('Invalid Postcode');
+      const pcData = await pcResponse.json();
+      const constituency = pcData.result.parliamentary_constituency;
 
-Please search the web to find:
-1. The MP's full name
-2. The constituency name
-3. The MP's parliamentary email (usually in format: firstname.lastname.mp@parliament.uk)
-
-Return ONLY a JSON object with this exact format (no markdown, no backticks, no explanation):
-{"mpName": "Full Name", "constituency": "Constituency Name", "mpEmail": "email@parliament.uk"}
-
-If you cannot find the information, return:
-{"error": "Could not find MP information"}`
-          }],
-          tools: [{
-            type: "web_search_20250305",
-            name: "web_search"
-          }]
-        })
-      });
-
-      const data = await response.json();
+      // 2. Get the MP for that constituency from official Parliament API
+      const mpResponse = await fetch(`https://members-api.parliament.uk/api/Location/Constituency/Search?searchText=${encodeURIComponent(constituency)}&skip=0&take=1`);
+      const mpData = await mpResponse.json();
       
-      // Extract text from response
-      let responseText = '';
-      if (data.content) {
-        for (const block of data.content) {
-          if (block.type === 'text') {
-            responseText += block.text;
-          }
-        }
-      }
+      if (!mpData.items || mpData.items.length === 0) throw new Error('MP not found');
+      
+      const mpId = mpData.items[0].value.currentRepresentation.member.value.id;
+      const mpName = mpData.items[0].value.currentRepresentation.member.value.nameFullTitle;
 
-      // Parse the JSON response
-      const mpInfo = JSON.parse(responseText.trim());
+      // 3. Get the MP's Email address
+      const contactResponse = await fetch(`https://members-api.parliament.uk/api/Members/${mpId}/Contact`);
+      const contactData = await contactResponse.json();
+      
+      // Find the parliamentary email in the contact list
+      const emailObj = contactData.value.find(c => c.type === 'Parliamentary' && c.email);
+      const mpEmail = emailObj ? emailObj.email : `${mpName.replace(/\s+/g, '.').toLowerCase()}@parliament.uk`;
 
-      if (mpInfo.error) {
-        throw new Error(mpInfo.error);
-      }
-
-      const { mpName, constituency, mpEmail } = mpInfo;
-
-      if (!mpName || !mpEmail) {
-        throw new Error('Incomplete MP information');
-      }
-
-      // Format postcode
-      const cleanPostcode = postcode.replace(/\s+/g, '');
-      const displayPostcode = cleanPostcode.slice(0, -3) + ' ' + cleanPostcode.slice(-3);
-
-      // Show success
+      // UI Success
       resultDiv.className = 'result-box';
       resultDiv.innerHTML = `
-        <p><strong>✅ Found your MP!</strong></p>
-        <p><strong>${mpName}</strong></p>
+        <p><strong>✅ Found your MP: ${mpName}</strong></p>
         <p>Constituency: ${constituency}</p>
-        <p>Opening your email now...</p>
+        <p>Opening your email client now...</p>
       `;
       resultDiv.classList.remove('hidden');
 
-      // Create email
-      const subject = encodeURIComponent('Urgent: Violence against civilians in Iran');
+      // 4. Create and Open the Email
+      const subject = encodeURIComponent('Urgent: Human Rights Concerns in Iran');
       const body = encodeURIComponent(
         `Dear ${mpName},\n\n` +
-        `I am writing as your constituent from ${displayPostcode} to express serious concern about the ongoing violence against civilians in Iran.\n\n` +
-        `Over 30,000 people have been killed by the Iranian regime, many of them young people. Security forces continue to use live ammunition and chemical agents against unarmed civilians.\n\n` +
-        `I urge you to:\n` +
-        `1. Raise this issue in Parliament\n` +
-        `2. Support calls for accountability and humanitarian access\n` +
-        `3. Press for international action on human rights violations in Iran\n\n` +
+        `I am writing as your constituent from ${postcode} to express serious concern about the ongoing violence against civilians in Iran.\n\n` +
+        `Over 30,000 people have been killed, and I urge you to raise this issue in Parliament and press for international accountability.\n\n` +
         `Thank you for your attention to this urgent matter.\n\n` +
         `Yours sincerely,\n` +
         `${name}\n` +
-        `${displayPostcode}`
+        `${postcode}`
       );
 
       const mailtoLink = `mailto:${mpEmail}?subject=${subject}&body=${body}`;
       
-      // Small delay to show success message
       setTimeout(() => {
         window.location.href = mailtoLink;
         button.disabled = false;
-        button.innerHTML = '✅ Email Opened - Send Another?';
-      }, 2000);
+        button.innerHTML = '✅ Email Prepared - Send Another?';
+      }, 1500);
 
     } catch (error) {
       console.error('Error:', error);
       resultDiv.className = 'error';
       resultDiv.innerHTML = `
-        <p><strong>⚠️ We couldn't automatically find your MP.</strong></p>
-        <p>Please visit <a href="https://www.theyworkforyou.com/postcode/" target="_blank" style="color: #b00020; font-weight: 600;">TheyWorkForYou</a> to find your MP, then contact them about this urgent issue.</p>
-        <p style="font-size: 0.9rem; margin-top: 12px;">Postcode checked: <strong>${postcode}</strong></p>
+        <p><strong>⚠️ Sorry, we couldn't find your MP automatically.</strong></p>
+        <p>This could be due to an incorrect postcode or a temporary connection issue.</p>
+        <p>Please check your postcode or visit <a href="https://www.theyworkforyou.com" target="_blank">TheyWorkForYou</a>.</p>
       `;
       resultDiv.classList.remove('hidden');
       button.disabled = false;
