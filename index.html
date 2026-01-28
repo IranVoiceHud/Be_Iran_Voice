@@ -2,46 +2,76 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Be Iran Voice</title>
+  <title>Be Iran's Voice</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
       margin: 0;
       background: #f5f5f5;
       color: #111;
+      line-height: 1.6;
     }
 
     .container {
       max-width: 700px;
       margin: auto;
-      padding: 16px;
+      padding: 12px;
     }
 
     h1 {
-      font-size: 1.6rem;
-      margin-bottom: 8px;
+      font-size: 1.75rem;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      margin-top: 0;
+      margin-bottom: 12px;
+      line-height: 1.3;
     }
 
     p {
-      font-size: 1rem;
-      line-height: 1.5;
-      margin-top: 0;
+      font-size: 1.05rem;
+      margin: 12px 0;
     }
 
     .box {
       background: #ffffff;
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
-    .box h2 {
-      font-size: 1.2rem;
-      margin-top: 0;
-      margin-bottom: 10px;
+    /* Highlight the MP contact box */
+    .box.priority {
+      border: 3px solid #b00020;
+      background: #fff8f8;
+    }
+
+    .box.priority h2 {
+      color: #b00020;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #b00020;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-transform: uppercase;
     }
 
     .button {
@@ -49,26 +79,106 @@
       text-align: center;
       background: #b00020;
       color: white;
-      padding: 14px;
+      padding: 16px 20px;
       text-decoration: none;
-      font-size: 1.1rem;
-      border-radius: 8px;
-      margin-top: 20px;
+      font-size: 1.15rem;
+      font-weight: 600;
+      border-radius: 10px;
+      margin-top: 16px;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      /* Better tap target for mobile */
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .button:active {
-      opacity: 0.9;
+      transform: scale(0.98);
+      background: #8a0019;
+    }
+
+    .button.secondary {
+      background: #333;
+    }
+
+    .button.secondary:active {
+      background: #222;
     }
 
     .small {
-      font-size: 0.9rem;
-      color: #555;
+      font-size: 0.95rem;
+      color: #666;
+      margin-top: 12px;
+    }
+
+    .emphasis {
+      font-weight: 600;
+      color: #b00020;
     }
 
     hr {
       border: none;
       border-top: 1px solid #ddd;
-      margin: 20px 0;
+      margin: 24px 0;
+    }
+
+    /* Better spacing for embedded content on mobile */
+    .instagram-media,
+    .twitter-tweet {
+      margin: 20px auto !important;
+      max-width: 100% !important;
+    }
+
+    /* Stats highlight */
+    .stats {
+      background: #fff3cd;
+      border-left: 4px solid #b00020;
+      padding: 12px 16px;
+      margin: 16px 0;
+      border-radius: 6px;
+    }
+
+    .stats p {
+      margin: 8px 0;
+      font-weight: 600;
+    }
+
+    /* Mobile improvements */
+    @media (max-width: 600px) {
+      .container {
+        padding: 8px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      h2 {
+        font-size: 1.2rem;
+      }
+
+      .box {
+        padding: 16px;
+        margin-bottom: 12px;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
+      .button {
+        font-size: 1.1rem;
+        padding: 14px 16px;
+      }
+    }
+
+    /* Improve readability */
+    .intro-text {
+      font-size: 1.1rem;
+      line-height: 1.7;
     }
   </style>
 </head>
@@ -79,45 +189,73 @@
 
   <!-- INTRO -->
   <div class="box">
-    <h1>Be the Voice of Iran</h1>
+    <h1>🇮🇷 Be the Voice of Iran</h1>
+
+    <p class="intro-text">
+      The Iranian regime has systematically used violence against civilians.
+    </p>
+
+    <div class="stats">
+      <p>📊 Over 30,000 people killed</p>
+      <p>⚠️ Many victims were young people</p>
+      <p>🚨 Security forces use live ammunition and chemical agents</p>
+    </div>
+
+    <p class="intro-text">
+      <strong>Our mission:</strong> Document evidence, raise awareness, demand action.
+    </p>
+  </div>
+
+  <!-- CONTACT MP - MOVED TO TOP & EMPHASIZED -->
+  <div class="box priority">
+    <span class="badge">⚡ Action Needed</span>
+    <h2>Contact Your Local MP</h2>
 
     <p>
-      This page documents violence by the Iranian regime against civilians.
+      <strong class="emphasis">This is the most important action you can take.</strong>
     </p>
 
     <p>
-      Over 30,000 people have been killed over the years. Many were young.
+      Your MP can raise concerns in Parliament and support action on human rights in Iran. 
+      A single email from you makes a real difference.
     </p>
 
-    <p>
-      Security forces have used real bullets, military weapons, and chemical agents
-      against unarmed people.
-    </p>
+    <a class="button"
+       href="mailto:harpreet.uppal.mp@parliament.uk?subject=Urgent%3A%20Violence%20against%20civilians%20in%20Iran&body=Dear%20Ms%20Uppal%2C%0D%0A%0D%0AI%20am%20writing%20as%20your%20constituent%20to%20express%20serious%20concern%20about%20the%20ongoing%20violence%20against%20civilians%20in%20Iran.%0D%0A%0D%0AOver%2030%2C000%20people%20have%20been%20killed%20by%20the%20Iranian%20regime%2C%20many%20of%20them%20young%20people.%20Security%20forces%20continue%20to%20use%20live%20ammunition%20and%20chemical%20agents%20against%20unarmed%20civilians.%0D%0A%0D%0AI%20urge%20you%20to%3A%0D%0A1.%20Raise%20this%20issue%20in%20Parliament%0D%0A2.%20Support%20calls%20for%20accountability%20and%20humanitarian%20access%0D%0A3.%20Press%20for%20international%20action%20on%20human%20rights%20violations%20in%20Iran%0D%0A%0D%0AThank%20you%20for%20your%20attention%20to%20this%20urgent%20matter.%0D%0A%0D%0AYours%20sincerely%2C%0D%0A">
+      📧 Email Harpreet Uppal MP Now
+    </a>
 
-    <p>
-      The aim is simple: show evidence, raise awareness, and ask for action.
+    <p class="small">
+      <strong>MP for Huddersfield</strong><br>
+      The email will open in your email app with a pre-written message you can edit.
     </p>
   </div>
 
   <!-- PETITION -->
   <div class="box">
-    <h2>Sign the petition</h2>
+    <h2>Sign the Petition</h2>
 
     <p>
-      This petition calls for immediate humanitarian access for injured and killed
-      civilians in Iran.
+      Add your voice to demand immediate humanitarian access for injured and 
+      killed civilians in Iran.
     </p>
 
-    <a class="button"
+    <a class="button secondary"
        href="https://www.change.org/p/demand-immediate-humanitarian-access-to-injured-and-killed-civilians-in-iran?recruiter=1399862278"
-       target="_blank">
-      Sign the petition
+       target="_blank"
+       rel="noopener">
+      ✍️ Sign the Petition
     </a>
   </div>
 
   <!-- VIDEO EVIDENCE -->
   <div class="box">
-    <h2>Video evidence</h2>
+    <h2>Video Evidence</h2>
+
+    <p>
+      <strong>Warning:</strong> Some content may be distressing. These are 
+      publicly shared posts documenting the violence.
+    </p>
 
     <blockquote class="instagram-media"
       data-instgrm-permalink="https://www.instagram.com/reel/DT8yak7AXHP/"
@@ -140,33 +278,23 @@
 
     <hr>
 
-    <!-- X / Twitter post -->
     <blockquote class="twitter-tweet">
       <a href="https://x.com/sofiafonsoferre/status/2012897847390183724"></a>
     </blockquote>
 
     <p class="small">
-      Publicly shared posts. Sources remain with the original creators.
+      Sources remain with the original creators. Shared for awareness and documentation.
     </p>
   </div>
 
-  <!-- CONTACT MP -->
+  <!-- SHARE -->
   <div class="box">
-    <h2>Contact the local MP</h2>
-
+    <h2>Share This Page</h2>
     <p>
-      Ask your MP to raise concerns in Parliament and support action on human rights in Iran.
+      Help spread awareness by sharing this page with friends, family, and on social media.
     </p>
-
-    <a class="button"
-       href="mailto:harpreet.uppal.mp@parliament.uk
-       ?subject=Concern%20about%20violence%20against%20civilians%20in%20Iran
-       &body=Dear%20Ms%20Uppal,%0D%0A%0D%0AI%20am%20writing%20as%20a%20constituent%20to%20express%20serious%20concern%20about%20the%20ongoing%20violence%20against%20civilians%20in%20Iran.%0D%0A%0D%0AI%20ask%20you%20to%20raise%20this%20issue%20in%20Parliament%20and%20support%20calls%20for%20accountability%20and%20humanitarian%20access.%0D%0A%0D%0AYours%20sincerely,%0D%0A">
-      Email Harpreet Uppal MP
-    </a>
-
     <p class="small">
-      Harpreet Uppal MP — Huddersfield
+      Every share amplifies the voices of those who cannot speak.
     </p>
   </div>
 
